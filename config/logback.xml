@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="true" scan="true" scanPeriod="10 seconds">
+    <property name="LOG_PATH" value="/b001/logs"/>
+    <property name="COMMON-PATTERN"
+              value="%d{yyyy-MM-dd_HH:mm:ss} %-4relative [%thread] %-5level %logger{35} - %msg%n"/>
+
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${COMMON-PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="Appender-1" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/order-number-generator.log</file>
+        <append>true</append>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/order-number-generator.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>2</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${COMMON-PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+
+    <appender name="Async-Appender" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="Appender-1"/>
+    </appender>
+
+    <logger name="org.springframework.boot" level="warn" additivity="false">
+        <appender-ref ref="Async-Appender"/>
+    </logger>
+
+    <logger name="org.springframework.boot.context.embedded.tomcat" level="debug" additivity="false">
+        <appender-ref ref="Async-Appender"/>
+    </logger>
+
+    <logger name="org.apache.tomcat" level="warn" additivity="false">
+        <appender-ref ref="Async-Appender"/>
+    </logger>
+
+    <logger name="com.arrow.digital.server.metrics" level="info" additivity="false">
+        <appender-ref ref="stdout"/>
+        <appender-ref ref="Async-Appender"/>
+    </logger>
+
+    <logger name="com.arrow.digital.service.ong" level="debug" additivity="false">
+        <appender-ref ref="Async-Appender"/>
+        <appender-ref ref="stdout"/>
+    </logger>
+
+    <root level="info">
+        <appender-ref ref="stdout"/>
+        <appender-ref ref="Async-Appender"/>
+    </root>
+
+</configuration>
